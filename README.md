@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 作業タイマー
 
-## Getting Started
+ポモドーロタイマーとアラームで、作業時間に区切りをつけるための Web アプリです。
+PC・スマホのブラウザから、インストールもログインもせずに使えます。
 
-First, run the development server:
+**公開URL**: https://timer-app-alpha-ten.vercel.app
+
+## スクリーンショット
+
+ライト表示（ポモドーロ／アラーム一覧／アラームの編集）
+
+![ライト表示のスクリーンショット](docs/screenshots/light.jpg)
+
+ダーク表示（ホーム／休憩中のポモドーロ／設定）
+
+![ダーク表示のスクリーンショット](docs/screenshots/dark.jpg)
+
+## 主な機能
+
+- **ポモドーロタイマー**
+  - 作業時間と休憩時間を分単位で設定できる
+  - スタート・一時停止・リセット・スキップができる
+  - 作業と休憩は自動で切り替わり、切り替わるときに音とブラウザ通知で知らせる
+- **アラーム**
+  - 複数のアラームを登録・編集・削除し、それぞれ ON/OFF を切り替えられる
+  - 曜日を指定して繰り返せる。曜日を選ばなければ1回だけ鳴り、鳴ったあと自動で OFF になる
+- **設定**
+  - 通知音の ON/OFF と音量、テーマ（ライト／ダーク／自動）を変えられる
+  - テスト通知を送って、通知が届くか確認できる
+- **データの保存**
+  - 設定やアラームはブラウザ（localStorage）に保存され、次に開いたときも残る
+  - ページを移動しても、再読み込みしても、タイマーは続きから動く
+
+> 音と通知は、アプリのタブを開いている間だけ届きます。タブやブラウザを閉じると鳴りません。
+
+## 技術スタック
+
+| 分類 | 使用技術 |
+|---|---|
+| フレームワーク | Next.js 16（App Router） |
+| UI | React 19 |
+| 言語 | TypeScript 5 |
+| スタイル | Tailwind CSS v4 |
+| データ保存 | localStorage（サーバー・データベースなし） |
+| 通知・音 | Web Notification API、Web Audio API |
+| テスト | Vitest |
+| ホスティング | Vercel |
+
+## 開発環境で動かす
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000 で起動
+npm test         # テストを実行
+npm run lint     # ESLint
+npm run build    # 本番用にビルド
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ドキュメント
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [要件定義書](要件定義書.md) — 背景・目的、ユーザーストーリー、機能要件など
+- [CLAUDE.md](CLAUDE.md) — Claude Code 向けの設計の説明と、このプロジェクトのルール
