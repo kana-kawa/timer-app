@@ -44,26 +44,33 @@ export default function Home() {
       </div>
 
       <Link href="/pomodoro" className="group">
-        <Card className="flex items-center gap-4 p-5 transition-colors group-hover:bg-surface-muted">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-work-soft text-work">
+        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5 transition-colors group-hover:bg-surface-muted">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl sm:size-12 bg-work-soft text-work">
             <TimerIcon className="size-6" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-semibold">ポモドーロタイマー</p>
-            <p className="truncate text-sm text-muted">{hydrated ? pomodoroStatus : " "}</p>
+            <p className="text-sm text-muted">{hydrated ? pomodoroStatus : " "}</p>
           </div>
-          <ChevronRightIcon className="size-5 text-muted" />
+          <ChevronRightIcon className="size-5 shrink-0 text-muted" />
         </Card>
       </Link>
 
       <Link href="/alarm" className="group">
-        <Card className="flex items-center gap-4 p-5 transition-colors group-hover:bg-surface-muted">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-break-soft text-break">
+        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5 transition-colors group-hover:bg-surface-muted">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl sm:size-12 bg-break-soft text-break">
             <AlarmIcon className="size-6" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold">アラーム</p>
-            <p className="truncate text-sm text-muted">
+            <p className="flex items-center gap-2 font-semibold">
+              アラーム
+              {hydrated && enabledCount > 0 && (
+                <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-normal text-muted">
+                  {enabledCount}件ON
+                </span>
+              )}
+            </p>
+            <p className="text-sm text-muted">
               {!hydrated
                 ? " "
                 : upcoming
@@ -73,23 +80,20 @@ export default function Home() {
                     : `ONのアラームはありません（${alarms.length}件登録）`}
             </p>
           </div>
-          {hydrated && enabledCount > 0 && (
-            <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs text-muted">{enabledCount}件ON</span>
-          )}
-          <ChevronRightIcon className="size-5 text-muted" />
+          <ChevronRightIcon className="size-5 shrink-0 text-muted" />
         </Card>
       </Link>
 
       <Link href="/settings" className="group">
-        <Card className="flex items-center gap-4 p-5 transition-colors group-hover:bg-surface-muted">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-muted">
+        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5 transition-colors group-hover:bg-surface-muted">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl sm:size-12 bg-surface-muted text-muted">
             <GearIcon className="size-6" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-semibold">設定</p>
-            <p className="truncate text-sm text-muted">通知音・音量・テーマ</p>
+            <p className="text-sm text-muted">通知音・音量・テーマ</p>
           </div>
-          <ChevronRightIcon className="size-5 text-muted" />
+          <ChevronRightIcon className="size-5 shrink-0 text-muted" />
         </Card>
       </Link>
     </div>
