@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f5f2;
+  --surface: #ffffff;
+  --surface-muted: #efede8;
+  --foreground: #1f1d1a;
+  --muted: #6b665e;
+  --border: #e2ded6;
+  --work: #e0533d;
+  --work-soft: #fbe7e3;
+  --break: #1f9d84;
+  --break-soft: #ddf3ee;
+  --notice: #fdf6e3;
+  --notice-fg: #7a5c12;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #141311;
+  --surface: #1e1c1a;
+  --surface-muted: #2a2825;
+  --foreground: #efece6;
+  --muted: #a39d93;
+  --border: #36332f;
+  --work: #f07360;
+  --work-soft: #3a221e;
+  --break: #3cc2a6;
+  --break-soft: #173129;
+  --notice: #2c2617;
+  --notice-fg: #e6c977;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-work: var(--work);
+  --color-work-soft: var(--work-soft);
+  --color-break: var(--break);
+  --color-break-soft: var(--break-soft);
+  --color-notice: var(--notice);
+  --color-notice-fg: var(--notice-fg);
+  --font-sans: var(--font-geist-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
