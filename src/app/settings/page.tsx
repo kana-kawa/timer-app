@@ -15,7 +15,7 @@ const THEMES: { value: Theme; label: string }[] = [
 
 const PERMISSION_TEXT: Record<PermissionState, string> = {
   granted: "許可されています",
-  denied: "ブロックされています（ブラウザのサイト設定から許可してください）",
+  denied: "ブロックされています",
   default: "まだ許可されていません",
   unsupported: "このブラウザは通知に対応していません",
 };
@@ -24,14 +24,40 @@ export default function SettingsPage() {
   const hydrated = useHydrated();
   const { settings, updateSettings } = useSettings();
   const [permission, setPermission] = useState<PermissionState>("unsupported");
+  // 「通知を許可する」を押しても確認画面が出なかったとき true
+  const [promptBlocked, setPromptBlocked] = useState(false);
 
-  // 許可状態はブラウザでしか分からないので、マウント後に読む
+  // 許可状態はブラウザでしか分からないので、マウント後に読む。
+  // アドレスバーから許可を変えた場合にも表示を更新する
   useEffect(() => {
     const sync = () => setPermission(getPermission());
     sync();
     document.addEventListener("visibilitychange", sync);
-    return () => document.removeEventListener("visibilitychange", sync);
+    window.addEventListener("focus", sync);
+    let status: PermissionStatus | null = null;
+    navigator.permissions
+      ?.query({ name: "notifications" })
+      .then((s) => {
+        status = s;
+        s.addEventListener("change", sync);
+      })
+      .catch(() => {});
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      window.removeEventListener("focus", sync);
+      status?.removeEventListener("change", sync);
+    };
   }, []);
+
+  const requestPermission = async () => {
+    // Chrome が確認画面をアドレスバーのアイコンだけにした場合、結果が返ってこないことがある。
+    // 3秒たっても決まらなければ、手動で許可する手順を表示する
+    const timer = window.setTimeout(() => setPromptBlocked(true), 3000);
+    const result = await ensurePermission();
+    window.clearTimeout(timer);
+    setPermission(result);
+    setPromptBlocked(result === "default");
+  };
 
   if (!hydrated) return <PageTitle>設定</PageTitle>;
 
@@ -80,16 +106,35 @@ export default function SettingsPage() {
 
       <section>
         <h2 className="mb-2 text-sm font-medium text-muted">ブラウザ通知</h2>
-        <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm">{PERMISSION_TEXT[permission]}</p>
-          {permission === "default" && (
-            <button
-              type="button"
-              onClick={async () => setPermission(await ensurePermission())}
-              className="shrink-0 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background"
-            >
-              通知を許可する
-            </button>
+        <Card className="flex flex-col gap-3 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm">{PERMISSION_TEXT[permission]}</p>
+            {permission === "default" && (
+              <button
+                type="button"
+                onClick={requestPermission}
+                className="shrink-0 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background"
+              >
+                通知を許可する
+              </button>
+            )}
+          </div>
+          {(permission === "denied" || (permission === "default" && promptBlocked)) && (
+            <div className="rounded-lg bg-notice p-3 text-xs leading-relaxed text-notice-fg" role="status">
+              <p className="font-medium">
+                {permission === "denied"
+                  ? "通知がブロックされています。次の手順で許可してください。"
+                  : "ブラウザが確認画面を表示しませんでした。次の手順で許可してください。"}
+              </p>
+              <ol className="mt-1.5 list-decimal space-y-0.5 pl-4">
+                <li>アドレスバーの左端にあるアイコン（サイト情報）を押す</li>
+                <li>「通知」の項目を「許可」に切り替える</li>
+                <li>この画面に戻ると「許可されています」に変わります</li>
+              </ol>
+              <p className="mt-1.5">
+                アドレスバーの右端に斜線付きのベルのアイコンが出ている場合は、そこを押して「許可」を選んでもかまいません。
+              </p>
+            </div>
           )}
         </Card>
       </section>
