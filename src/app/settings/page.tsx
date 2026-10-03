@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useSettings, type Theme } from "@/contexts/SettingsContext";
-import { ensurePermission, getPermission, type PermissionState } from "@/lib/notify";
+import {
+  ensurePermission,
+  getPermission,
+  sendTestNotification,
+  type PermissionState,
+  type TestResult,
+} from "@/lib/notify";
 import { playBeep } from "@/lib/sound";
 import { useHydrated } from "@/lib/storage";
 import { Card, PageTitle, Toggle } from "@/components/ui";
@@ -26,6 +32,7 @@ export default function SettingsPage() {
   const [permission, setPermission] = useState<PermissionState>("unsupported");
   // 「通知を許可する」を押しても確認画面が出なかったとき true
   const [promptBlocked, setPromptBlocked] = useState(false);
+  const [testResult, setTestResult] = useState<TestResult | "testing" | null>(null);
 
   // 許可状態はブラウザでしか分からないので、マウント後に読む。
   // アドレスバーから許可を変えた場合にも表示を更新する
@@ -57,6 +64,11 @@ export default function SettingsPage() {
     window.clearTimeout(timer);
     setPermission(result);
     setPromptBlocked(result === "default");
+  };
+
+  const runTest = async () => {
+    setTestResult("testing");
+    setTestResult(await sendTestNotification());
   };
 
   if (!hydrated) return <PageTitle>設定</PageTitle>;
@@ -118,7 +130,52 @@ export default function SettingsPage() {
                 通知を許可する
               </button>
             )}
+            {permission === "granted" && (
+              <button
+                type="button"
+                onClick={runTest}
+                disabled={testResult === "testing"}
+                className="shrink-0 rounded-lg border border-border px-4 py-2 text-sm hover:bg-surface-muted disabled:opacity-50"
+              >
+                {testResult === "testing" ? "確認中…" : "テスト通知を送る"}
+              </button>
+            )}
           </div>
+          {permission === "granted" && testResult && testResult !== "testing" && (
+            <div
+              className={`rounded-lg p-3 text-xs leading-relaxed ${
+                testResult === "shown" ? "bg-break-soft text-foreground" : "bg-notice text-notice-fg"
+              }`}
+              role="status"
+            >
+              {testResult === "shown" ? (
+                <>
+                  <p className="font-medium">Chrome は通知を表示しました。</p>
+                  <p className="mt-1">
+                    画面の右下に通知が出なかった場合は、Windows 側で止められています。次を確認してください。
+                  </p>
+                  <ol className="mt-1.5 list-decimal space-y-0.5 pl-4">
+                    <li>Windows の「設定 → システム → 通知」で「通知」がオンになっている</li>
+                    <li>同じ画面の一覧で「Google Chrome」がオンになっている</li>
+                    <li>「応答不可」（集中モード）がオフになっている</li>
+                  </ol>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium">
+                    {testResult === "error"
+                      ? "Chrome が通知の表示に失敗しました。"
+                      : testResult === "no-response"
+                        ? "Chrome から反応がありませんでした。"
+                        : "このブラウザでは通知を作成できませんでした。"}
+                  </p>
+                  <p className="mt-1">
+                    Chrome のアドレスバーに「chrome://settings/content/notifications」と入力して開き、このサイトが「許可」に入っているか確認してください。そのあと Chrome を一度終了して開き直し、もう一度お試しください。
+                  </p>
+                </>
+              )}
+            </div>
+          )}
           {(permission === "denied" || (permission === "default" && promptBlocked)) && (
             <div className="rounded-lg bg-notice p-3 text-xs leading-relaxed text-notice-fg" role="status">
               <p className="font-medium">
